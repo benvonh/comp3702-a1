@@ -7,7 +7,6 @@ from constants import *
 from environment import Environment
 
 from solution import Solver
-from hidden import LoopCounter      # disregard any IDE warnings here - the script will still run correctly
 
 """
 Tester script.
@@ -41,6 +40,46 @@ TIMING_SCALING = 1.0
 EXPAND_POINTS = 1.5
 EXPAND_SCALING = 1.0
 MINIMUM_MARK_INCREMENT = 0.1
+
+
+class LoopCounter:
+    # Used to record the number of loop iterations (e.g. number of nodes expanded) and monitor for unrealistic behaviour
+    # (if the average time between increments is too small, then fail verification).
+
+    def __init__(self):
+        self._last_inc_time = time.time()
+        self._last_inc_count = 0
+        self._count = 0
+        self.violations = 0
+
+        self._ts = []
+
+    def inc(self):
+        self._count += 1
+
+        if self._count - self._last_inc_count > 50:
+            t = time.time()
+            self._ts.append(t - self._last_inc_time)
+            self._last_inc_time = t
+            self._last_inc_count = self._count
+
+    def count(self):
+        return self._count
+
+    def verify1(self, tgt, s_type):
+        # Return False if count is too low relative to the target, suggesting counter was used incorrectly
+        if s_type == 'ucs':
+            return self._count > (tgt * 0.8)
+        else:
+            return self._count > (tgt * 0.2)
+
+    def verify2(self):
+        # return False if timing suggests loop counter was used incorrectly
+        ts_avg = sum(self._ts) / len(self._ts)
+        if ts_avg < 0.0005:
+            return False
+        else:
+            return True
 
 
 def print_usage():
