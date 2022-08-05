@@ -3,9 +3,9 @@
 # target cost
 52.4
 # target time (ucs, a*)
-700.0, 550.0
+80.0, 80.0
 # target nodes expanded (ucs, a*)
-13787156, 9000000
+1050690, 980000
 # hex grid data
 /TT\__/TT\__/XX\__/aa\__
 \__/TT\__/  \__/aa\__/  \
