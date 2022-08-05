@@ -122,9 +122,3 @@ hex grid data (row num_rows)
 
 Testcase files can contain comments, starting with '#', which are ignored by the input file parser.
 
-
-**hidden.pyc**
-
-This binary file contains additional resources used by `tester.py` to verify the accuracy of recorded statistics. To
-ensure the Tester functions correctly, do not remove this file.
-
