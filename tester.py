@@ -248,7 +248,7 @@ def run_test_mp(env_s_i_vis):
                            "output": (msg0 + '\n' + msg1 + '\n' + msg2 + '\n' + msg3 + '\n' + msg4 + '\n' +
                                       msg5 + '\n')}
             if s == 'a_star':
-                leaderboard_result = {"name": "A* Time to solve", "value": t_solve, "order": "asc"}
+                leaderboard_result = {"name": f"ex{i} A* Time", "value": t_solve, "order": "asc"}
             else:
                 leaderboard_result = None
             return test_result, leaderboard_result
@@ -331,7 +331,8 @@ def main(arglist):
             results = p.map(run_test_mp, inputs)
         for t, lb in results:
             tests.append(t)
-            leaderboard.append(lb)
+            if lb is not None:
+                leaderboard.append(lb)
             total_score += t['score']
 
         # print output for each test in order
