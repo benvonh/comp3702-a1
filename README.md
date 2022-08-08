@@ -45,7 +45,7 @@ render(state)
 Prints a graphical representation of the given 'state' (a State object) to the terminal.
 
 
-**game_state.py**
+**state.py**
 
 This file contains a class representing a HexBot environment state. You should make use of this class and its functions
 in your solver. You may add your own code to this class (e.g. get_successors function, get_heuristic function, etc), but
