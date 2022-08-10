@@ -194,6 +194,14 @@ def run_test_mp(env_s_i_vis):
                            "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
             return test_result, None
 
+        if path is None:
+            msg1 = f'Program did not return a path for {s} on testcase {i}'
+            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+            test_result = {"score": 0,
+                           "max_score": POINTS_PER_TESTCASE,
+                           "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
+            return test_result, None
+
         # verify path
         state = env.get_init_state()
         total_cost = 0.0
