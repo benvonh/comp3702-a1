@@ -2,8 +2,9 @@ import sys
 import time
 import math
 import json
-from multiprocessing import Pool
 import platform
+import traceback
+from multiprocessing import Pool
 
 # automatic timeout handling will only be performed on Unix
 if platform.system() != 'Windows':
@@ -157,9 +158,13 @@ def run_test_mp(env_s_i_vis):
             except BaseException as e:
                 msg1 = f'Program crashed in solve_ucs() on testcase {i}'
                 msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+                if int(sys.version.split('.')[1]) <= 9:
+                    err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                else:
+                    err = traceback.format_exception(e)
                 test_result = {"score": 0,
                                "max_score": POINTS_PER_TESTCASE,
-                               "output": msg0 + '\n' + msg1 + '\n' + str(e) + '\n' + msg2 + '\n'}
+                               "output": msg0 + '\n' + msg1 + '\n' + err + '\n' + msg2 + '\n'}
                 return test_result, None
             t_solve = time.time() - t0
         else:
@@ -170,9 +175,13 @@ def run_test_mp(env_s_i_vis):
             except BaseException as e:
                 msg1 = f'Program crashed in solve_a_star() on testcase {i}'
                 msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+                if int(sys.version.split('.')[1]) <= 9:
+                    err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                else:
+                    err = traceback.format_exception(e)
                 test_result = {"score": 0,
                                "max_score": POINTS_PER_TESTCASE,
-                               "output": msg0 + '\n' + msg1 + '\n' + str(e) + '\n' + msg2 + '\n'}
+                               "output": msg0 + '\n' + msg1 + '\n' + err + '\n' + msg2 + '\n'}
                 return test_result, None
             t_solve = time.time() - t0
         # check that loop counter was used legitimately
