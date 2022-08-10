@@ -40,9 +40,10 @@ ACTION_READABLE = {FORWARD: 'Forward', REVERSE: 'Reverse', SPIN_LEFT: 'Spin Left
                    SPIN_RIGHT: 'Spin Right'}
 
 # 6 points for each (method, testcase pair)
-# 2 points for cost (scaling up to 2x tgt)
-# 2 points for timing (scaling up to 2x tgt)
-# 2 points for nodes expanded (scaling up to 2x tgt)
+# 1.5 points for completion (pass/fail)
+# 1.5 points for cost (scaling up to 2x tgt)
+# 1.5 points for timing (scaling up to 2x tgt)
+# 1.5 points for nodes expanded (scaling up to 2x tgt)
 POINTS_PER_TESTCASE = 6.0
 COMPLETION_POINTS = 1.5
 COST_POINTS = 1.5
@@ -70,8 +71,6 @@ class LoopCounter:
         self._last_inc_time = time.time()
         self._last_inc_count = 0
         self._count = 0
-        self.violations = 0
-
         self._ts = []
 
     def inc(self):

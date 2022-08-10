@@ -214,7 +214,7 @@ class Environment:
 
             # check if the new position moves a widget
             for i in range(self.n_widgets):
-                if forward_robot_posit in widget_cells[i]:        # !!! this is being triggered before the next widget
+                if forward_robot_posit in widget_cells[i]:
                     # this action pushes or pulls a widget
                     cost = ACTION_BASE_COST[action] + ACTION_PUSH_COST[action]
 
