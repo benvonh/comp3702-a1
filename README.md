@@ -27,9 +27,8 @@ Returns a State object (see below) representing the initial state of the level.
 perform_action(state, action)
 ~~~~~
 Simulates the outcome of performing the given 'action' starting from the given 'state', where 'action' is an element of
-GameEnv.ACTIONS and 'state' is a State object. Returns a tuple (success, next_state), where success is True (if the
-action is valid and does not collide) or False (if the action is invalid or collides), and next_state is a State
-object.
+GameEnv.ACTIONS and 'state' is a State object. Returns a tuple of whether the action was successful (i.e. valid and
+collision free), the cost of performing the action, and the resulting new state
 
 
 ~~~~~

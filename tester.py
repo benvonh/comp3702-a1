@@ -16,8 +16,6 @@ else:
 from constants import *
 from environment import Environment
 
-from solution import Solver
-
 """
 Tester script. Multiprocessing Version.
 
@@ -26,7 +24,7 @@ unmodified version of this file will be used to evaluate your code.
 
 COMP3702 2022 Assignment 1 Support Code
 
-Last updated by njc 04/08/22
+Last updated by njc 15/08/22
 """
 
 TC_PREFIX = 'testcases/ex'
@@ -133,150 +131,197 @@ def run_test_mp(env_s_i_vis):
     msg0 = f'=== Testcase {i}, {"UCS" if s == "ucs" else "A*"} ' \
            f'============================================================'
 
+    try:
+        from solution import Solver
+    except ModuleNotFoundError:
+        msg1 = 'Your Solver class could not be found. Please make sure you have included your "solution.py" file in ' \
+               'the files you have uploaded to gradescope, and that you are not using any packages which use a GUI ' \
+               '(e.g. tkinter, turtle).'
+        msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+        test_result = {"score": 0,
+                       "max_score": POINTS_PER_TESTCASE,
+                       "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
+        return test_result, None
+
     if not WINDOWS:
         signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(TIMEOUT)
-    try:
-        lc = LoopCounter()
+
+    lc = LoopCounter()
+    t0 = time.time()
+    solver = Solver(env, lc)
+    t_init = time.time() - t0
+    if t_init > 0.001 and not DISABLE_TIME_LIMITS:
+        msg1 = 'Your __init__ method appears to be taking a long time to complete. Make sure any expensive ' \
+               'computations (e.g. pre-computing data for a heuristic) are in solve_ucs or solve a_star ' \
+               'instead of __init__.'
+        msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+        test_result = {"score": 0,
+                       "max_score": POINTS_PER_TESTCASE,
+                       "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
+        return test_result, None
+    if s == 'ucs':
+        # call student's solve_ucs
         t0 = time.time()
-        solver = Solver(env, lc)
-        t_init = time.time() - t0
-        if t_init > 0.001 and not DISABLE_TIME_LIMITS:
-            msg1 = 'Your __init__ method appears to be taking a long time to complete. Make sure any expensive ' \
-                   'computations (e.g. pre-computing data for a heuristic) are in solve_ucs or solve a_star ' \
-                   'instead of __init__.'
+        try:
+            path = solver.solve_ucs()
+        except TimeOutException:
+            msg1 = f'/!\\ Program exceeded the maximum allowed time ({TIMEOUT // 60} minutes) and was terminated.'
+            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+            try:
+                vs = vars(solver)
+                msg3 = '\nSolver internal state:\n'
+                for k, v in vs.items():
+                    if isinstance(v, int) or isinstance(v, float):
+                        msg3 += f'{k}: value = {v}\n'
+                    elif isinstance(v, list) or isinstance(v, set) or isinstance(v, tuple) or isinstance(v, dict):
+                        msg3 += f'{k}: size = {len(v)}\n'
+            except BaseException as e:
+                if int(sys.version.split('.')[1]) <= 9:
+                    err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                else:
+                    err = ''.join(traceback.format_exception(e))
+                msg3 = 'Solver could not be instantiated.\n' + err
+            test_result = {"score": 0,
+                           "max_score": POINTS_PER_TESTCASE,
+                           "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n' + msg3 + '\n'}
+            return test_result, None
+        except BaseException as e:
+            msg1 = f'Program crashed in solve_ucs() on testcase {i}'
+            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+            if int(sys.version.split('.')[1]) <= 9:
+                err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+            else:
+                err = ''.join(traceback.format_exception(e))
+            test_result = {"score": 0,
+                           "max_score": POINTS_PER_TESTCASE,
+                           "output": msg0 + '\n' + msg1 + '\n' + err + '\n' + msg2 + '\n'}
+            return test_result, None
+        t_solve = time.time() - t0
+    else:
+        # call student's solve_a_star
+        t0 = time.time()
+        try:
+            path = solver.solve_a_star()
+        except TimeOutException:
+            msg1 = f'/!\\ Program exceeded the maximum allowed time ({TIMEOUT // 60} minutes) and was terminated.'
+            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+            try:
+                vs = vars(solver)
+                msg3 = '\nSolver internal state:\n'
+                for k, v in vs.items():
+                    if isinstance(v, int) or isinstance(v, float):
+                        msg3 += f'{k}: value = {v}\n'
+                    elif isinstance(v, list) or isinstance(v, set) or isinstance(v, tuple) or isinstance(v, dict):
+                        msg3 += f'{k}: size = {len(v)}\n'
+            except BaseException as e:
+                if int(sys.version.split('.')[1]) <= 9:
+                    err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                else:
+                    err = ''.join(traceback.format_exception(e))
+                msg3 = 'Solver could not be instantiated.\n' + err
+            test_result = {"score": 0,
+                           "max_score": POINTS_PER_TESTCASE,
+                           "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n' + msg3 + '\n'}
+            return test_result, None
+        except BaseException as e:
+            msg1 = f'Program crashed in solve_a_star() on testcase {i}'
+            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+            if int(sys.version.split('.')[1]) <= 9:
+                err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+            else:
+                err = ''.join(traceback.format_exception(e))
+            test_result = {"score": 0,
+                           "max_score": POINTS_PER_TESTCASE,
+                           "output": msg0 + '\n' + msg1 + '\n' + err + '\n' + msg2 + '\n'}
+            return test_result, None
+        t_solve = time.time() - t0
+    # check that loop counter was used legitimately
+    if not lc.verify1(env.cost_tgt, s):
+        msg1 = f'Your search expanded an unrealistically low number of nodes {s}. Please check that this ' \
+               f'search type is implemented, and that "self.loop_counter.inc()" is called in the correct place.'
+        msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+        test_result = {"score": 0,
+                       "max_score": POINTS_PER_TESTCASE,
+                       "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
+        return test_result, None
+    if not lc.verify2():
+        msg1 = f'Your search loop appears to be running unrealistically quickly for {s}. Please check that ' \
+               f'this search type is implemented, and that "self.loop_counter.inc()" is called in the ' \
+               f'correct place.'
+        msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+        test_result = {"score": 0,
+                       "max_score": POINTS_PER_TESTCASE,
+                       "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
+        return test_result, None
+
+    if path is None:
+        msg1 = f'Program did not return a path for {s} on testcase {i}'
+        msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
+        test_result = {"score": 0,
+                       "max_score": POINTS_PER_TESTCASE,
+                       "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
+        return test_result, None
+
+    # verify path
+    state = env.get_init_state()
+    total_cost = 0.0
+    if vis:
+        env.render(state)
+        time.sleep(VISUALISE_TIME_PER_STEP)
+    for j, action in enumerate(path):
+        if vis:
+            print(f'\nSelected: {ACTION_READABLE[action]}')
+        success, cost, new_state = env.perform_action(state, action)
+        if not success:
+            msg1 = f'/!\\ Action {j} resulted in collision.'
             msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
             test_result = {"score": 0,
                            "max_score": POINTS_PER_TESTCASE,
                            "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
             return test_result, None
-        if s == 'ucs':
-            # call student's solve_ucs
-            t0 = time.time()
-            try:
-                path = solver.solve_ucs()
-            except BaseException as e:
-                msg1 = f'Program crashed in solve_ucs() on testcase {i}'
-                msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
-                if int(sys.version.split('.')[1]) <= 9:
-                    err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
-                else:
-                    err = traceback.format_exception(e)
-                test_result = {"score": 0,
-                               "max_score": POINTS_PER_TESTCASE,
-                               "output": msg0 + '\n' + msg1 + '\n' + err + '\n' + msg2 + '\n'}
-                return test_result, None
-            t_solve = time.time() - t0
         else:
-            # call student's solve_a_star
-            t0 = time.time()
-            try:
-                path = solver.solve_a_star()
-            except BaseException as e:
-                msg1 = f'Program crashed in solve_a_star() on testcase {i}'
-                msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
-                if int(sys.version.split('.')[1]) <= 9:
-                    err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
-                else:
-                    err = traceback.format_exception(e)
-                test_result = {"score": 0,
-                               "max_score": POINTS_PER_TESTCASE,
-                               "output": msg0 + '\n' + msg1 + '\n' + err + '\n' + msg2 + '\n'}
-                return test_result, None
-            t_solve = time.time() - t0
-        # check that loop counter was used legitimately
-        if not lc.verify1(env.cost_tgt, s):
-            msg1 = f'Your search expanded an unrealistically low number of nodes {s}. Please check that this ' \
-                   f'search type is implemented, and that "self.loop_counter.inc()" is called in the correct place.'
-            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
-            test_result = {"score": 0,
-                           "max_score": POINTS_PER_TESTCASE,
-                           "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
-            return test_result, None
-        if not lc.verify2():
-            msg1 = f'Your search loop appears to be running unrealistically quickly for {s}. Please check that ' \
-                   f'this search type is implemented, and that "self.loop_counter.inc()" is called in the ' \
-                   f'correct place.'
-            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
-            test_result = {"score": 0,
-                           "max_score": POINTS_PER_TESTCASE,
-                           "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
-            return test_result, None
-
-        if path is None:
-            msg1 = f'Program did not return a path for {s} on testcase {i}'
-            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
-            test_result = {"score": 0,
-                           "max_score": POINTS_PER_TESTCASE,
-                           "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
-            return test_result, None
-
-        # verify path
-        state = env.get_init_state()
-        total_cost = 0.0
+            total_cost += cost
+            state = new_state
         if vis:
             env.render(state)
             time.sleep(VISUALISE_TIME_PER_STEP)
-        for j, action in enumerate(path):
-            if vis:
-                print(f'\nSelected: {ACTION_READABLE[action]}')
-            success, cost, new_state = env.perform_action(state, action)
-            if not success:
-                msg1 = f'/!\\ Action {j} resulted in collision.'
-                msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
-                test_result = {"score": 0,
-                               "max_score": POINTS_PER_TESTCASE,
-                               "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
-                return test_result, None
-            else:
-                total_cost += cost
-                state = new_state
-            if vis:
-                env.render(state)
-                time.sleep(VISUALISE_TIME_PER_STEP)
 
-        if env.is_solved(state):
-            # record statistics
-            cost_score = compute_score(COST_POINTS, COST_SCALING, total_cost, env.cost_tgt)
+    if env.is_solved(state):
+        # record statistics
+        cost_score = compute_score(COST_POINTS, COST_SCALING, total_cost, env.cost_tgt)
 
-            time_tgt = env.time_tgt[0 if s == 'ucs' else 1]
-            timing_score = compute_score(TIMING_POINTS, TIMING_SCALING, t_solve, time_tgt)
+        time_tgt = env.time_tgt[0 if s == 'ucs' else 1]
+        timing_score = compute_score(TIMING_POINTS, TIMING_SCALING, t_solve, time_tgt)
 
-            exp_tgt = env.exp_tgt[0 if s == 'ucs' else 1]
-            exp_score = compute_score(EXPAND_POINTS, EXPAND_SCALING, lc.count(), exp_tgt)
+        exp_tgt = env.exp_tgt[0 if s == 'ucs' else 1]
+        exp_score = compute_score(EXPAND_POINTS, EXPAND_SCALING, lc.count(), exp_tgt)
 
-            tc_total_score = COMPLETION_POINTS + cost_score + timing_score + exp_score
+        tc_total_score = COMPLETION_POINTS + cost_score + timing_score + exp_score
 
-            # round before printing (but after computing score)
-            total_cost = round(total_cost, 1)
-            t_solve = round(t_solve, 3)
-            tc_total_score = round(tc_total_score, 2)
-            msg1 = f'Agent successfully reached the goal --> Score: {COMPLETION_POINTS} / {COMPLETION_POINTS}'
-            msg2 = f'Path Cost: {total_cost},    Target: {env.cost_tgt}  ' \
-                   f'--> Score: {round(cost_score, 1)} / {COST_POINTS}'
-            msg3 = f'Time Elapsed: {t_solve},    Target: {time_tgt}  ' \
-                   f'--> Score: {round(timing_score, 1)} / {TIMING_POINTS}'
-            msg4 = f'Nodes Expanded: {lc.count()},    Target: {exp_tgt}  ' \
-                   f'--> Score: {round(exp_score, 1)} / {TIMING_POINTS}'
-            msg5 = f'\nTestcase total score: {tc_total_score} / {POINTS_PER_TESTCASE}'
-            test_result = {"score": tc_total_score,
-                           "max_score": POINTS_PER_TESTCASE,
-                           "output": (msg0 + '\n' + msg1 + '\n' + msg2 + '\n' + msg3 + '\n' + msg4 + '\n' +
-                                      msg5 + '\n')}
-            if s == 'a_star':
-                leaderboard_result = {"name": f"ex{i} A* Time", "value": t_solve, "order": "asc"}
-            else:
-                leaderboard_result = None
-            return test_result, leaderboard_result
+        # round before printing (but after computing score)
+        total_cost = round(total_cost, 1)
+        t_solve = round(t_solve, 3)
+        tc_total_score = round(tc_total_score, 2)
+        msg1 = f'Agent successfully reached the goal --> Score: {COMPLETION_POINTS} / {COMPLETION_POINTS}'
+        msg2 = f'Path Cost: {total_cost},    Target: {env.cost_tgt}  ' \
+               f'--> Score: {round(cost_score, 1)} / {COST_POINTS}'
+        msg3 = f'Time Elapsed: {t_solve},    Target: {time_tgt}  ' \
+               f'--> Score: {round(timing_score, 1)} / {TIMING_POINTS}'
+        msg4 = f'Nodes Expanded: {lc.count()},    Target: {exp_tgt}  ' \
+               f'--> Score: {round(exp_score, 1)} / {TIMING_POINTS}'
+        msg5 = f'\nTestcase total score: {tc_total_score} / {POINTS_PER_TESTCASE}'
+        test_result = {"score": tc_total_score,
+                       "max_score": POINTS_PER_TESTCASE,
+                       "output": (msg0 + '\n' + msg1 + '\n' + msg2 + '\n' + msg3 + '\n' + msg4 + '\n' +
+                                  msg5 + '\n')}
+        if s == 'a_star':
+            leaderboard_result = {"name": f"ex{i} A* Time", "value": t_solve, "order": "asc"}
         else:
-            msg1 = '/!\\ Path did not result in agent reaching the goal.'
-            msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
-            test_result = {"score": 0,
-                           "max_score": POINTS_PER_TESTCASE,
-                           "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
-            return test_result, None
-    except TimeOutException:
-        msg1 = f'/!\\ Program exceeded the maximum allowed time ({TIMEOUT // 60}) minutes and was terminated.'
+            leaderboard_result = None
+        return test_result, leaderboard_result
+    else:
+        msg1 = '/!\\ Path did not result in agent reaching the goal.'
         msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
         test_result = {"score": 0,
                        "max_score": POINTS_PER_TESTCASE,
@@ -359,7 +404,7 @@ def main(arglist):
         total_score = math.ceil(total_score * (1 / MINIMUM_MARK_INCREMENT)) / (1 / MINIMUM_MARK_INCREMENT)
         msg0 = '\n\n=== Summary ============================================================'
         msg1 = f'Search type: {search_type},   Testcases: {tc_idx}'
-        msg2 = f'Total Score: {round(total_score, 2)} (out of max possible score {max_score})'
+        msg2 = f'Total Score: {round(total_score, 1)} (out of max possible score {max_score})'
         log_data = {"output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n', "tests": tests, "leaderboard": leaderboard}
         print(log_data['output'])
         if write_logfile:
