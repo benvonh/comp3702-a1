@@ -157,7 +157,7 @@ def run_test_mp(env_s_i_vis):
                'instead of __init__.'
         msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
         test_result = {"score": 0,
-                       "max_score": POINTS_PER_TESTCASE,
+                       "max_score": qPOINTS_PER_TESTCASE,
                        "output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n'}
         return test_result, None
     if s == 'ucs':
