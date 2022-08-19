@@ -57,8 +57,8 @@ class Solver:
 
         while not self.environment.is_solved(lowest_cost_action[2]):
             lowest_cost_action = hq.heappop(self._queue)
-            self.expand_node(*lowest_cost_action)
-            self.loop_counter.inc()
+            if self.expand_node(*lowest_cost_action):
+                self.loop_counter.inc()
 
         return lowest_cost_action[1]
 
