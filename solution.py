@@ -32,15 +32,14 @@ class Solver:
         Find a path which solves the environment using Uniform Cost Search (UCS).
         :return: path (list of actions, where each action is an element of ROBOT_ACTIONS)
         """
-        state = self.environment.get_init_state()
-        self._visited_states.add(state)
-        self.expand_node(0, [], state)
+        self._visited_states.add(self.environment.get_init_state())
+        lowest_cost_action = (0, 0, self.environment.get_init_state())
+        self.expand_node(0, [], self.environment.get_init_state())
         self.loop_counter.inc()
 
-        while not self.environment.is_solved(state):
+        while not self.environment.is_solved(lowest_cost_action[2]):
             lowest_cost_action = hq.heappop(self._queue)
             self.expand_node(*lowest_cost_action)
-            state = lowest_cost_action[2]
             self.loop_counter.inc()
 
         return lowest_cost_action[1]
@@ -51,7 +50,19 @@ class Solver:
         Find a path which solves the environment using A* search.
         :return: path (list of actions, where each action is an element of ROBOT_ACTIONS)
         """
-        pass
+        self._queue = [] # array of (running_cost, [action_history], new_state) tuple
+        self._visited_states = set()
+        self._visited_states.add(self.environment.get_init_state())
+        lowest_cost_action = (0, 0, self.environment.get_init_state())
+        self.expand_node(0, [], self.environment.get_init_state())
+        self.loop_counter.inc()
+
+        while not self.environment.is_solved(lowest_cost_action[2]):
+            lowest_cost_action = hq.heappop(self._queue)
+            self.expand_node(*lowest_cost_action)
+            self.loop_counter.inc()
+
+        return lowest_cost_action[1]
 
 
     def expand_node(self, running_cost: float, action_history: list, prev_state: State):
