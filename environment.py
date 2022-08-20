@@ -706,15 +706,3 @@ def widget_get_movement_type(robot_orient, forward_robot_posit, centre):
         return SPIN_CW
     else:
         return SPIN_CCW
-
-
-
-
-
-
-
-
-
-
-
-

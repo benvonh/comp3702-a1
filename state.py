@@ -1,3 +1,4 @@
+import math
 from constants import *
 
 """
@@ -71,5 +72,35 @@ class State:
         return State(self.environment, self.robot_posit, self.robot_orient, self.widget_centres, self.widget_orients,
                      force_valid=self.force_valid)
 
+    def manhattan(self) -> float:
+        dist = 0
+        n = 0
+        for widget in self.widget_centres:
+            for target in self.environment.target_list:
+                dist += abs(widget[0] - target[0]) + abs(widget[1] - target[1])
+                n += 1
+
+        return dist / n
 
 
+    def manhattan_half(self) -> float:
+        dist = 0
+        n = 0
+        for widget in self.widget_centres:
+            for target in self.environment.target_list:
+                dist += abs(widget[0] - target[0]) + abs(widget[1] - target[1])
+                n += 1
+
+        return dist / n / 2
+
+
+    def euclidean(self) -> float:
+        dist = 0
+        n = 0
+        for widget in self.widget_centres:
+            for target in self.environment.target_list:
+                dist += math.sqrt((widget[0] - target[0]) ** 2 + \
+                                  (widget[1] - target[1]) ** 2)
+                n += 1
+
+        return dist / n
