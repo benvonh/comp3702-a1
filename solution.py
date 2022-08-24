@@ -92,14 +92,16 @@ class Solver:
         for action in ROBOT_ACTIONS:
             success, cost, state = self.environment.perform_action(prev_state, action)
             if success:
-                total_cost = cost + running_cost + state.manhattan() #+ len(action_history) * 0.05
+                saved_cost = cost + running_cost + len(action_history) * 0.05
+                total_cost = saved_cost + state.manhattan()
+                # total_cost = cost + running_cost + state.manhattan() + len(action_history) * 0.05
                 # total_cost = cost + running_cost + state.manhattan_half() + len(action_history) * 0.05
                 # total_cost = cost + running_cost + state.euclidean()
                 if state not in self._visited_states or self._visited_states[state] > total_cost:
                     history = action_history.copy()
                     history.append(action)
                     self._a_queue.append((total_cost, history, state))
-                    self._visited_states[state] = cost + running_cost
+                    self._visited_states[state] = saved_cost
                     new = True
 
         return new
