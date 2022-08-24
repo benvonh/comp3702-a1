@@ -91,7 +91,7 @@ class State:
                 dist += abs(widget[0] - target[0]) + abs(widget[1] - target[1])
                 n += 1
 
-        return dist / n / 2
+        return dist / n / 100
 
 
     def euclidean(self) -> float:
