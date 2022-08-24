@@ -80,7 +80,7 @@ class State:
             dist += abs(widget[0] - self.robot_posit[0]) + abs(widget[1] - self.robot_posit[1])
             n += 1
 
-        return dist / n / 2
+        return dist / n / 10
 
 
     def manhattan_half(self) -> float:
