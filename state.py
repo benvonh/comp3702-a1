@@ -73,14 +73,14 @@ class State:
                      force_valid=self.force_valid)
 
     def manhattan(self) -> float:
+        # edited
         dist = 0
         n = 0
         for widget in self.widget_centres:
-            for target in self.environment.target_list:
-                dist += abs(widget[0] - target[0]) + abs(widget[1] - target[1])
-                n += 1
+            dist += abs(widget[0] - self.robot_posit[0]) + abs(widget[1] - self.robot_posit[1])
+            n += 1
 
-        return dist / n
+        return dist / n / 2
 
 
     def manhattan_half(self) -> float:
@@ -95,6 +95,7 @@ class State:
 
 
     def euclidean(self) -> float:
+        # edited
         dist = 0
         n = 0
         for widget in self.widget_centres:
