@@ -11,7 +11,7 @@ solution.py
 
 This file is a template you should use to implement your solution.
 
-You should implement 
+You should implement
 
 COMP3702 2022 Assignment 1 Support Code
 
@@ -93,7 +93,7 @@ class Solver:
             success, cost, state = self.environment.perform_action(prev_state, action)
             if success:
                 # total_cost = cost + running_cost + state.manhattan()
-                total_cost = cost + running_cost + state.manhattan_half()
+                total_cost = cost + running_cost + state.manhattan_half() + len(action_history) * 0.01
                 # total_cost = cost + running_cost + state.euclidean()
                 if state not in self._visited_states or self._visited_states[state] > total_cost:
                     history = action_history.copy()
